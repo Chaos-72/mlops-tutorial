@@ -2,9 +2,12 @@ import os
 import sys
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
+
 from src.exception import CustomException 
 import dill # help to create pickel file
+
+
 
 
 def save_object(file_path, object):
@@ -19,4 +22,28 @@ def save_object(file_path, object):
             dill.dump(object, file_obj)
     except Exception as e:
         raise CustomException(e, sys)
+
+def evaluate_model(X_train, y_train, X_test, y_test, models):
+    '''
+    Evaluate model on different metrics (Here we consider r2 score)
+    '''
+    try:
+        report = {}
+
+        for i in range(len(list(models))):
+            model = list(models.values())[i] # capture the model's constructor
+
+            model.fit(X_train, y_train)
+
+            y_train_pred = model.predict(X_train)
+            y_test_pred = model.predict(X_test)
+
+            train_model_score = r2_score(y_train, y_train_pred)
+            test_model_score = r2_score(y_test, y_test_pred)
+
+            report[list(models.keys())[i]] = test_model_score
+        return report
     
+    except Exception as e:
+        raise CustomException(e, sys)
+     
